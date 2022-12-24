@@ -1,11 +1,10 @@
-// DarkPlasma_ImportExportSaveFile 1.2.0
+// DarkPlasma_ImportExportSaveFile 1.1.0
 // Copyright (c) 2022 DarkPlasma
 // This software is released under the MIT license.
 // http://opensource.org/licenses/mit-license.php
 
 /**
- * 2022/12/23 1.2.0 スマホ向けのセーブデータ表示エリア設定を追加
- *            1.1.0 インポート時の説明文をplaceholderに変更
+ * 2022/12/23 1.1.0 インポート時の説明文をplaceholderに変更
  * 2022/12/22 1.0.0 リファクタ
  *            0.0.1 公開
  */
@@ -22,11 +21,6 @@
  * @text セーブデータ表示エリア
  * @type struct<Rectangle>
  * @default {"x":"208", "y":"100", "width":"400", "height":"400"}
- *
- * @param textAreaRectForMobile
- * @text セーブデータ表示エリア(スマホ向け)
- * @type struct<Rectangle>
- * @default {"x":"100", "y":"50", "width":"200", "height":"150"}
  *
  * @param okButtonPos
  * @text OKボタン座標
@@ -75,7 +69,7 @@
  * @default {"ok":"buttonOk", "cancel":"buttonCancel", "import":"buttonImport", "export":"buttonExport"}
  *
  * @help
- * version: 1.2.0
+ * version: 1.1.0
  * 本プラグインはkienさんの「セーブデータのインポート・エクスポート」を
  * MZ移植したものです。
  *
@@ -168,15 +162,6 @@
         height: Number(parsed.height || 0),
       };
     })(pluginParameters.textAreaRect || '{"x":"208", "y":"100", "width":"400", "height":"400"}'),
-    textAreaRectForMobile: ((parameter) => {
-      const parsed = JSON.parse(parameter);
-      return {
-        x: Number(parsed.x || 0),
-        y: Number(parsed.y || 0),
-        width: Number(parsed.width || 0),
-        height: Number(parsed.height || 0),
-      };
-    })(pluginParameters.textAreaRectForMobile || '{"x":"100", "y":"50", "width":"200", "height":"150"}'),
     okButtonPos: ((parameter) => {
       const parsed = JSON.parse(parameter);
       return {
@@ -222,21 +207,6 @@
     ),
   };
 
-  function textAreaRect() {
-    return Utils.isMobileDevice()
-      ? new Rectangle(
-          settings.textAreaRectForMobile.x,
-          settings.textAreaRectForMobile.y,
-          settings.textAreaRectForMobile.width,
-          settings.textAreaRectForMobile.height
-        )
-      : new Rectangle(
-          settings.textAreaRect.x,
-          settings.textAreaRect.y,
-          settings.textAreaRect.width,
-          settings.textAreaRect.height
-        );
-  }
   function Graphics_ImportExportSaveFileMixIn(graphics) {
     const _createAllElements = graphics._createAllElements;
     graphics._createAllElements = function () {
@@ -246,10 +216,10 @@
     graphics._createImportExportArea = function () {
       this._importExportElement = document.createElement('textarea');
       this._importExportElement.style.position = 'absolute';
-      this._importExportElement.style.left = `${textAreaRect().x}px`;
-      this._importExportElement.style.top = `${textAreaRect().y}px`;
-      this._importExportElement.style.width = `${textAreaRect().width}px`;
-      this._importExportElement.style.height = `${textAreaRect().height}px`;
+      this._importExportElement.style.left = `${settings.textAreaRect.x}px`;
+      this._importExportElement.style.top = `${settings.textAreaRect.y}px`;
+      this._importExportElement.style.width = `${settings.textAreaRect.width}px`;
+      this._importExportElement.style.height = `${settings.textAreaRect.height}px`;
       this._importExportElement.style.zIndex = '98';
     };
     graphics.showImportExportArea = function () {
@@ -264,13 +234,6 @@
     };
     graphics.setImportExportAreaValue = function (text) {
       this._importExportElement.value = text;
-      if (text && Utils.isMobileDevice()) {
-        window.RPGAtsumaru.popups.setThanksSettings({
-          autoThanks: false,
-          thanksText: text,
-        });
-        window.RPGAtsumaru.popups.displayThanksModal();
-      }
     };
     graphics.setImportExportAreaPlaceholder = function (text) {
       this._importExportElement.placeholder = text;
