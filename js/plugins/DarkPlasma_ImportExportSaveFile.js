@@ -342,6 +342,7 @@
           SoundManager.playBuzzer();
           this.activateListWindow();
           console.error(reason);
+          throw `reason`;
         });
     };
     sceneFile.onImportClicked = function () {
